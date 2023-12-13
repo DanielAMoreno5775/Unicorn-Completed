@@ -4,18 +4,27 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Wild Rydes</title>
+    <title>Daniel Moreno's Wild Rydes Site</title>
+    
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Serverless web application example">
     <meta name="author" content="">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<!--    <link rel="stylesheet" href="https://js.arcgis.com/4.3/esri/css/main.css">-->
+    <!--Link to Sizzle API-->
+    <script src="https://widgets.astronomyapi.com/cdn/astronomy-api-widgets.js"></script>
+
+   <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.6/esri/css/main.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
           integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
           crossorigin=""/>
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css"> 
     <link rel="stylesheet" href="/css/ride.css">
     <link rel="stylesheet" href="/css/message.css">
 </head>
@@ -23,13 +32,13 @@
 <body>
     <div class="info panel panel-default">
         <div class="panel-heading">
-            <button id="request" class="btn btn-primary" disabled="disabled">Set pickup</button>
-            <div class="dropdown pull-right">
-                <button id="accountLink" class="btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Account <span class="caret"></span>
+            <button id="request" class="btn btn-primary" disabled="disabled" data-bs-toggle="modal" data-toggle="modal" data-target="#staticBackdrop" data-bs-target="#staticBackdrop" data-inline="true">Set pickup</button>
+            <div class="dropdown pull-right" id="accountDropdown">
+                <button id="accountLink" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-inline="true">
+                    Account
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="accountLink">
-                    <li><a id="signOut" href="#">Sign out</a></li>
+                    <li><a id="signOut" class="dropdown-item" href="#">Sign out</a></li>
                 </ul>
             </div>
         </div>
@@ -37,6 +46,30 @@
             <ol id="updates">
                 <li>Welcome! Click the map to set your pickup location.</li>
             </ol>
+        </div>
+    </div>
+      
+	<!--This entire div was added by me to display the API images-->
+    <div class="modal fade" id="staticBackdrop" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" style="min-width:75%;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-1" id="staticBackdropLabel">Astronomical Information Based on Selected Location</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal" data-backdrop="false" aria-label="Close"></button>
+            </div>
+            <div class="modal-body container-fluid">
+              <p>To view more obvious changes in the results, set a pickup in Maine, Florida, and Alaska.</p>
+              <p>Please wait up to 5 minutes for the API call to be processed, especially if you have made a call previously.</p>
+              <p>If you get an intermittent error message, it is likely due to CORS, too many API requests in a short period of time, or selecting an area outside of the USA. These can be fixed by reloading the page.</p>
+              <div id="moon-phase"></div>
+              <br><br>
+              <h4>Image of the stars in the sky directly above the selected location</h4>
+              <div id="star-chart"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal" data-backdrop="false">Close</button>
+            </div>
+          </div>
         </div>
     </div>
 
@@ -92,7 +125,7 @@
     <script src="js/vendor/bootstrap.min.js"></script>
     <script src="js/vendor/aws-cognito-sdk.min.js"></script>
     <script src="js/vendor/amazon-cognito-identity.min.js"></script>
-<!--    <script src="https://js.arcgis.com/4.3/"></script>-->
+    <script src="https://js.arcgis.com/4.6/"></script>
     <script src="js/config.js"></script>
     <script src="js/cognito-auth.js"></script>
     <script src="js/esri-map.js"></script>
@@ -100,6 +133,8 @@
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
             integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
             crossorigin=""></script>
+    <!--Link to calls to API-->
+    <script src="js/astronomyAPI.js"></script>
 </body>
 
 </html>

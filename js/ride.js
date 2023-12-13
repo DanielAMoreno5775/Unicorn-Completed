@@ -1,5 +1,9 @@
 /*global WildRydes _config*/
 
+$(document).ready(function() {
+    $(".dropdown-toggle").dropdown();
+});
+
 var WildRydes = window.WildRydes || {};
 WildRydes.map = WildRydes.map || {};
 let map;
@@ -54,8 +58,8 @@ let map;
         displayUpdate(unicorn.Name + ', your ' + unicorn.Color + ' unicorn, is on ' + pronoun + ' way.', unicorn.Color);
 
         console.log(pickupLocation);
-        //  get the local weather, find nearby restaurants, movies
-        // getWeather(pickupLocation, unicorn)
+		//this function calls the code that I wrote in my file
+        getAstronomicalImages(pickupLocation)
 
         animateArrival(function animateCallback() {
             displayUpdate(unicorn.Name + ' has arrived. Giddy up!', unicorn.Color);
